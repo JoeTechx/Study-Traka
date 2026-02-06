@@ -126,7 +126,7 @@ export function CountdownTimer({
         <button
           onClick={() => setIsModalOpen(true)}
           className={cn(
-            "w-full bg-[#3946F0] text-white rounded-lg p-4 hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg",
+            "w-full bg-[#3946F0] text-white rounded-lg p-4 hover:bg-[#2a38c0] transition-all duration-200 shadow-md hover:shadow-lg",
             isCollapsed && "p-3",
           )}
         >
@@ -154,14 +154,14 @@ export function CountdownTimer({
       <>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full bg-indigo-50 border border-indigo-200 rounded-lg p-3 hover:bg-indigo-100 transition-colors"
+          className="w-full bg-[#F5F6FF] border border-[#D9D9D9] rounded-lg p-3 hover:bg-indigo-100 transition-colors cursor-pointer"
         >
           <div className="flex flex-col items-center">
             <AlertTriangle className="w-5 h-5 text-indigo-600 mb-1" />
-            <div className="text-2xl font-bold text-indigo-900">
+            <div className="text-2xl font-bold text-[#000000]">
               {timeRemaining.days}
             </div>
-            <div className="text-xs text-indigo-600">days</div>
+            <div className="text-xs text-[#000000]">days</div>
           </div>
         </button>
         <SetCountdownModal
@@ -179,62 +179,68 @@ export function CountdownTimer({
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="w-full bg-indigo-50 border border-indigo-200 rounded-lg p-4 hover:bg-indigo-100 transition-colors"
+        className="w-full bg-[#F5F6FF] border border-[#D9D9D9] rounded-lg p-4 hover:bg-indigo-100 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2 mb-3">
-          <AlertTriangle className="w-5 h-5 text-indigo-600" />
-          <h3 className="text-sm font-semibold text-indigo-900 truncate">
+          <AlertTriangle className="w-5 h-5 text-[#3946F0]" />
+          <h3 className="text-sm font-semibold text-[#000000] truncate">
             {examTitle}
           </h3>
         </div>
 
         {/* Main countdown display */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-indigo-900">
+        <div className="grid grid-cols-3 gap-2 mb-3 border-t border-[#ffffff] pt-3">
+          <div className="text-center flex flex-col items-center justify-center">
+            <div className="text-2xl bg-[#ffffff]/60 mb-1 w-14 py-2.5 rounded-lg font-medium text-[#000000]">
               {timeRemaining.months}
             </div>
-            <div className="text-xs text-indigo-600 uppercase font-medium">
+            <div className="text-[0.6rem] text-[#000000] uppercase font-medium">
               Months
             </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-indigo-900">
+          <div className="text-center flex flex-col items-center justify-center">
+            <div className="text-2xl bg-[#ffffff]/60 mb-1 w-14 py-2.5 rounded-lg font-medium text-[#000000]">
               {timeRemaining.weeks}
             </div>
-            <div className="text-xs text-indigo-600 uppercase font-medium">
+            <div className="text-[0.6rem] text-[#000000] uppercase font-medium">
               Weeks
             </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-indigo-900">
+          <div className="text-center flex flex-col items-center justify-center">
+            <div className="text-2xl bg-[#ffffff]/60 mb-1 w-14 py-2.5 rounded-lg font-medium text-[#000000]">
               {timeRemaining.days}
             </div>
-            <div className="text-xs text-indigo-600 uppercase font-medium">
+            <div className="text-[0.6rem] text-[#000000] uppercase font-medium">
               Days
             </div>
           </div>
         </div>
 
         {/* Time display */}
-        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-indigo-200">
+        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-[#ffffff]">
           <div className="text-center">
-            <div className="text-lg font-semibold text-indigo-800">
+            <div className="text-[0.9rem] font-medium text-[#000000]">
               {timeRemaining.hours}
             </div>
-            <div className="text-xs text-indigo-500 font-medium">Hours</div>
+            <div className="text-[0.6rem] text-[#000000] font-medium">
+              Hours
+            </div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-indigo-800">
+            <div className="text-[0.9rem] font-medium text-[#000000]">
               {timeRemaining.minutes}
             </div>
-            <div className="text-xs text-indigo-500 font-medium">Minutes</div>
+            <div className="text-[0.6rem] text-[#000000] font-medium">
+              Minutes
+            </div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-indigo-800">
+            <div className="text-[0.9rem] font-medium text-[#000000]">
               {timeRemaining.seconds}
             </div>
-            <div className="text-xs text-indigo-500 font-medium">Seconds</div>
+            <div className="text-[0.6rem] text-[#000000] font-medium">
+              Seconds
+            </div>
           </div>
         </div>
       </button>
