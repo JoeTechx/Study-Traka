@@ -67,7 +67,7 @@ export function DashboardSidebar({
         {/* Scrollable container with custom scrollbar */}
         <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
           {/* macOS-style traffic lights */}
-          <div className="flex ml-auto items-center gap-2 p-4 pb-3 flex-shrink-0">
+          <div className="flex ml-auto items-center gap-2 p-4 pb-3 shrink-0">
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="w-7 h-7 rounded-md border border-gray-200 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer relative"
@@ -84,7 +84,7 @@ export function DashboardSidebar({
           </div>
 
           {/* Header with logo and collapse button */}
-          <div className="px-4 pb-6 flex-shrink-0">
+          <div className="px-4 pb-6 shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium text-[1rem]">
@@ -135,7 +135,7 @@ export function DashboardSidebar({
           </nav>
 
           {/* Countdown Timer Section */}
-          <div className="px-3 py-4 flex-shrink-0">
+          <div className="px-3 py-4 shrink-0">
             <CountdownTimer
               initialCountdown={initialCountdown}
               isCollapsed={isCollapsed}
@@ -143,7 +143,7 @@ export function DashboardSidebar({
           </div>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-gray-200 flex-shrink-0">
+          <div className="p-4 border-t border-gray-200 shrink-0">
             <div
               className={cn(
                 "flex items-center gap-3 relative",
@@ -177,7 +177,7 @@ export function DashboardSidebar({
 
         {/* Tooltips rendered OUTSIDE the scrollable container */}
         {isCollapsed && hoveredItem === 'expand' && (
-          <div className="fixed left-[88px] top-[20px] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
+          <div className="fixed left-22 top-5 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
             Expand
           </div>
         )}
@@ -195,7 +195,7 @@ export function DashboardSidebar({
         )}
 
         {isCollapsed && hoveredItem === 'profile' && (
-          <div className="fixed left-[88px] bottom-[20px] px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50 max-w-[200px]">
+          <div className="fixed left-22 bottom-5 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50 max-w-50">
             <div className="font-semibold">{fullName || "User"}</div>
             <div className="text-[10px] text-gray-300 truncate">{email}</div>
           </div>
