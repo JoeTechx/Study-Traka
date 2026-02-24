@@ -1,9 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getReadingList } from "@/lib/supabase/readingListActions";
-// import { getCourses } from "@lib/supabase/courseActions";
-import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { getCourses } from "@/lib/supabase/courseActions";
+import {
+  getUpcomingEvents,
+  getReminderPreferences,
+} from "@/lib/supabase/reminderActions";
+import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { StarredPanel } from "@/components/dashboard/StarredPanel";
+import {
+  RemindersPanel,
+  type ReminderPreferences,
+} from "@/components/dashboard/RemindersPanel";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -15,20 +23,31 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Fetch both reading list and courses
-  const [readingList, courses] = await Promise.all([
-    getReadingList(),
-    getCourses(),
-  ]);
-
-  const fullName = user.user_metadata?.full_name as string | undefined;
+  // Fetch everything in parallel
+  const [readingList, courses, upcomingEvents, reminderPrefs] =
+    await Promise.all([
+      getReadingList(),
+      getCourses(),
+      getUpcomingEvents(),
+      getReminderPreferences(),
+    ]);
 
   return (
-    <DashboardContent
-      user={user}
-      fullName={fullName}
-      readingList={readingList}
-      courses={courses}
-    />
+    <div className="flex w-[95%]">
+      {/* Left: Reading list table */}
+      <div className="flex-1 min-w-0">
+        <DashboardContent readingList={readingList} courses={courses} />
+      </div>
+
+      {/* Right: Reminders + Starred */}
+      <div className="w-64 shrink-0 pt-8 flex flex-col gap-5">
+        <RemindersPanel
+          upcomingEvents={upcomingEvents}
+          reminderPrefs={reminderPrefs}
+          userEmail={user.email ?? ""}
+        />
+        <StarredPanel items={readingList} />
+      </div>
+    </div>
   );
 }

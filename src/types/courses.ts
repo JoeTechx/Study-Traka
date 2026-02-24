@@ -16,6 +16,8 @@ export interface ReadingListItem {
   topic: string;
   class_date: string;
   done: boolean;
+  starred: boolean;
+  border_color: string;
   created_at: string;
   updated_at: string;
   // Joined data
@@ -34,3 +36,12 @@ export interface CreateReadingListInput {
   topic: string;
   class_date: string;
 }
+
+export type BorderColor =
+  | "gray"
+  | "red"
+  | "blue"
+  | "green"
+  | "yellow"
+  | "purple"
+  | "orange";

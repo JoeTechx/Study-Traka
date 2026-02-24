@@ -69,9 +69,11 @@ export function DashboardSidebar({
           {/* macOS-style traffic lights */}
           <div className="flex ml-auto items-center gap-2 p-4 pb-3 shrink-0">
             <button
+            type="button"
+            title={isCollapsed ? "Expand" : "Collapse"}
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="w-7 h-7 rounded-md border border-gray-200 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer relative"
-              onMouseEnter={() => setHoveredItem('expand')}
+              onMouseEnter={() => setHoveredItem("expand")}
               onMouseLeave={() => setHoveredItem(null)}
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
@@ -106,13 +108,14 @@ export function DashboardSidebar({
               const isActive = pathname === item.href;
 
               return (
-                <div 
-                  key={item.href} 
+                <div
+                  key={item.href}
                   className="relative"
                   onMouseEnter={() => setHoveredItem(item.href)}
                   onMouseLeave={() => setHoveredItem(null)}
                 >
                   <Link
+                    title={item.label}
                     href={item.href}
                     className={cn(
                       "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200",
@@ -122,7 +125,9 @@ export function DashboardSidebar({
                       isCollapsed && "justify-center",
                     )}
                   >
-                    <Icon className={cn("w-4 h-4", isActive && "text-[#3946f0]")} />
+                    <Icon
+                      className={cn("w-4 h-4", isActive && "text-[#3946f0]")}
+                    />
                     {!isCollapsed && (
                       <span className="text-[0.75rem] font-medium">
                         {item.label}
@@ -149,7 +154,7 @@ export function DashboardSidebar({
                 "flex items-center gap-3 relative",
                 isCollapsed && "justify-center",
               )}
-              onMouseEnter={() => setHoveredItem('profile')}
+              onMouseEnter={() => setHoveredItem("profile")}
               onMouseLeave={() => setHoveredItem(null)}
             >
               <div className="w-10 h-10 rounded-full bg-[#3946F0] flex items-center justify-center text-white font-semibold text-sm">
@@ -165,6 +170,8 @@ export function DashboardSidebar({
               )}
               {!isCollapsed && (
                 <button
+                title="Logout"
+                type="button"
                   className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
                   aria-label="Sign out"
                 >
@@ -176,25 +183,27 @@ export function DashboardSidebar({
         </div>
 
         {/* Tooltips rendered OUTSIDE the scrollable container */}
-        {isCollapsed && hoveredItem === 'expand' && (
+        {/* {isCollapsed && hoveredItem === "expand" && (
           <div className="fixed left-22 top-5 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50">
             Expand
           </div>
-        )}
-        
-        {isCollapsed && hoveredItem && menuItems.find(item => item.href === hoveredItem) && (
-          <div 
-            className="fixed px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50"
-            style={{
-              left: '88px',
-              top: `${120 + menuItems.findIndex(item => item.href === hoveredItem) * 60}px`
-            }}
-          >
-            {menuItems.find(item => item.href === hoveredItem)?.label}
-          </div>
-        )}
+        )} */}
 
-        {isCollapsed && hoveredItem === 'profile' && (
+        {/* {isCollapsed &&
+          hoveredItem &&
+          menuItems.find((item) => item.href === hoveredItem) && (
+            <div
+              className="fixed px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50"
+              style={{
+                left: "88px",
+                top: `${120 + menuItems.findIndex((item) => item.href === hoveredItem) * 60}px`,
+              }}
+            >
+              {menuItems.find((item) => item.href === hoveredItem)?.label}
+            </div>
+          )} */}
+
+        {isCollapsed && hoveredItem === "profile" && (
           <div className="fixed left-22 bottom-5 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap pointer-events-none z-50 max-w-50">
             <div className="font-semibold">{fullName || "User"}</div>
             <div className="text-[10px] text-gray-300 truncate">{email}</div>
@@ -206,7 +215,7 @@ export function DashboardSidebar({
       <main
         className={cn(
           "flex-1 transition-all duration-300 ease-in-out",
-          isCollapsed ? "ml-20" : "ml-72"
+          isCollapsed ? "ml-20" : "ml-72",
         )}
       >
         {children}

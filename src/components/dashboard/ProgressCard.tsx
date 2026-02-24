@@ -113,7 +113,7 @@ export function ProgressCard({ readingList, courses }: ProgressCardProps) {
   }, [stats.percentage]);
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-6">
+    <div className="bg-[#ffffff] rounded-2xl p-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -134,7 +134,7 @@ export function ProgressCard({ readingList, courses }: ProgressCardProps) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
         {/* Circular Progress */}
         <div className="relative w-35 h-35 sm:w-40 sm:h-40 lg:w-45 lg:h-45 shrink-0">
           {/* Main progress circle */}

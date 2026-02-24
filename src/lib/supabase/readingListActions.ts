@@ -2,9 +2,30 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import type { ReadingListItem, CreateReadingListInput } from "@/types/courses";
+import type {
+  ReadingListItem,
+  CreateReadingListInput,
+  BorderColor,
+} from "@/types/courses";
 
-// GET API 
+// Available border colors
+const borderColors: BorderColor[] = [
+  "gray",
+  "red",
+  "blue",
+  "green",
+  "yellow",
+  "purple",
+  "orange",
+];
+
+// Function to get random border color
+function getRandomBorderColor(): BorderColor {
+  const randomIndex = Math.floor(Math.random() * borderColors.length);
+  return borderColors[randomIndex];
+}
+
+// GET API
 export async function getReadingList(): Promise<ReadingListItem[]> {
   const supabase = await createClient();
   const {
@@ -34,7 +55,6 @@ export async function getReadingList(): Promise<ReadingListItem[]> {
   return data || [];
 }
 
-
 // POST API
 export async function createReadingListItem(
   input: CreateReadingListInput,
@@ -55,6 +75,8 @@ export async function createReadingListItem(
       course_id: input.course_id,
       topic: input.topic,
       class_date: input.class_date,
+      starred: false,
+      border_color: getRandomBorderColor(), // Random color on creation
     })
     .select(
       `
@@ -75,8 +97,7 @@ export async function createReadingListItem(
   return { success: true, data };
 }
 
-
-// PATCH API
+// PATCH API - Toggle Done
 export async function toggleReadingListItem(
   id: string,
   done: boolean,
@@ -107,6 +128,67 @@ export async function toggleReadingListItem(
   return { success: true };
 }
 
+// PATCH API - Toggle Starred
+export async function toggleStarredItem(
+  id: string,
+  starred: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const { error } = await supabase
+    .from("reading_list")
+    .update({ starred })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error toggling starred item:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/courses");
+
+  return { success: true };
+}
+
+// PATCH API - Update Border Color
+export async function updateBorderColor(
+  id: string,
+  borderColor: BorderColor,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const { error } = await supabase
+    .from("reading_list")
+    .update({ border_color: borderColor })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error updating border color:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/courses");
+
+  return { success: true };
+}
 
 // DELETE API
 export async function deleteReadingListItem(
