@@ -194,6 +194,7 @@ export function AccountTab({ user }: AccountTabProps) {
               </div>
             </div>
             <input
+            title="Upload new avatar"
               ref={fileRef}
               type="file"
               accept="image/*"
