@@ -40,7 +40,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Right: Reminders + Starred */}
-      <div className="w-64 shrink-0 pt-8 flex flex-col gap-5">
+      <div className="w-80 shrink-0 pt-8 flex flex-col gap-5">
         <RemindersPanel
           upcomingEvents={upcomingEvents}
           reminderPrefs={reminderPrefs}

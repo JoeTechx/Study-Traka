@@ -1,10 +1,12 @@
+// app/layout.tsx
 "use client";
 
-import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { Toaster, toast } from "sonner";
-import { useEffect } from "react";
+import { Toaster } from "sonner";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -16,35 +18,43 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Monitor network status globally
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const handleOnline = () => {
-      toast.success("Connection restored");
-    };
+    const supabase = createClient();
 
-    const handleOffline = () => {
-      toast.error("No internet connection. Please check your network.");
-    };
+    // Initial load
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      setLoading(false);
+    });
 
-    // Check initial status
-    if (!navigator.onLine) {
-      toast.error("No internet connection");
-    }
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    // Listen for auth changes (sign in/out, token refresh, etc.)
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      },
+    );
 
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      listener.subscription.unsubscribe();
     };
   }, []);
 
   return (
     <html lang="en">
       <body className={montserrat.className}>
-        {children}
-        <Toaster richColors position="top-right" closeButton />
+        {loading ? (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+          </div>
+        ) : (
+          <>
+            {children}
+            <Toaster richColors position="top-right" closeButton />
+          </>
+        )}
       </body>
     </html>
   );
