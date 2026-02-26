@@ -17,7 +17,7 @@ export default async function SettingsPage() {
         id: user.id,
         email: user.email ?? "",
         created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at,
+        last_sign_in_at: user.last_sign_in_at ?? null,
         user_metadata: user.user_metadata ?? {},
       }}
     />
