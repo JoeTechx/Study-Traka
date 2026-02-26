@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   format,
   addWeeks,
@@ -23,6 +23,7 @@ import {
   SlidersHorizontal,
   ChevronUp,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import type { ScheduleEvent, ViewMode } from "@/types/schedule";
 import type { Course } from "@/types/courses";
@@ -31,12 +32,12 @@ import { MonthView } from "@/components/schedule/MonthView";
 import { DayView } from "@/components/schedule/DayView";
 import { AgendaView } from "@/components/schedule/AgendaView";
 import { AddEventModal } from "@/components/schedule/AddEventModal";
-import { ReminderPreferences } from "@/lib/supabase/reminderActions";
+import { createClient } from "@/lib/supabase/client";
+import { getReminderPreferences } from "@/lib/supabase/reminderActions";
+import type { ReminderPreferences } from "@/lib/supabase/reminderActions";
 
 interface ScheduleContentProps {
-  events: ScheduleEvent[];
-  courses: Course[];
-  preferences: ReminderPreferences | null;
+  userId: string;
   userEmail: string;
 }
 
@@ -99,12 +100,18 @@ function navigate(view: ViewMode, date: Date, dir: 1 | -1): Date {
 
 const COLLAPSIBLE_VIEWS: ViewMode[] = ["week", "day"];
 
-export function ScheduleContent({
-  events,
-  courses,
-  preferences,
-  userEmail,
-}: ScheduleContentProps) {
+export function ScheduleContent({ userId, userEmail }: ScheduleContentProps) {
+  const supabase = createClient();
+
+  // ── Data state ────────────────────────────────────────────────────────────
+  const [events, setEvents] = useState<ScheduleEvent[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [preferences, setPreferences] = useState<ReminderPreferences | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+
+  // ── UI state ──────────────────────────────────────────────────────────────
   const [view, setView] = useState<ViewMode>("week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
@@ -113,6 +120,78 @@ export function ScheduleContent({
   const [editEvent, setEditEvent] = useState<ScheduleEvent | null>(null);
   const [initialDate, setInitialDate] = useState<Date | undefined>(undefined);
 
+  // ── Fetch all data ────────────────────────────────────────────────────────
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [eventsRes, coursesRes, prefs] = await Promise.all([
+        supabase
+          .from("schedule_events")
+          .select("*, course:courses(id, code, title)")
+          .eq("user_id", userId)
+          .order("start_time", { ascending: true }),
+        supabase
+          .from("courses")
+          .select("*")
+          .eq("user_id", userId)
+          .order("code", { ascending: true }),
+        getReminderPreferences(),
+      ]);
+
+      setEvents(eventsRes.data ?? []);
+      setCourses(coursesRes.data ?? []);
+      setPreferences(prefs);
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase, userId]);
+
+  // Fetch on mount
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  // ── Real-time: re-fetch when schedule_events changes ─────────────────────
+  useEffect(() => {
+    const channel = supabase
+      .channel("schedule_events_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "schedule_events",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          // Re-fetch events only (fast path)
+          supabase
+            .from("schedule_events")
+            .select("*, course:courses(id, code, title)")
+            .eq("user_id", userId)
+            .order("start_time", { ascending: true })
+            .then(({ data }) => {
+              if (data) setEvents(data);
+            });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, userId]);
+
+  // ── Poll preferences every 5s so settings changes reflect immediately ─────
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const prefs = await getReminderPreferences();
+      setPreferences(prefs);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // ── Filtered events ───────────────────────────────────────────────────────
   const filteredEvents = useMemo(() => {
     if (selectedCourses.length === 0) return events;
     return events.filter(
@@ -125,6 +204,7 @@ export function ScheduleContent({
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
 
+  // ── Modal helpers ─────────────────────────────────────────────────────────
   const openAdd = (date?: Date) => {
     setEditEvent(null);
     setInitialDate(date ?? new Date());
@@ -137,11 +217,13 @@ export function ScheduleContent({
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  // After modal closes, re-fetch so list is up to date
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setEditEvent(null);
     setInitialDate(undefined);
-  };
+    fetchAll(); // ← this is the key: re-fetch after create/update/delete
+  }, [fetchAll]);
 
   const handleViewChange = (v: ViewMode) => {
     setView(v);
@@ -150,18 +232,30 @@ export function ScheduleContent({
 
   const showCollapseBtn = COLLAPSIBLE_VIEWS.includes(view);
 
+  // ── Loading skeleton ──────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center flex-1 min-h-screen bg-gray-50">
+        <div className="flex items-center gap-2 text-gray-400">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-[0.82rem] font-medium">Loading schedule…</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full min-h-screen bg-gray-50">
-      {/* ── Toolbar ─────────────────────────────────────────────────── */}
+      {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100 px-3 sm:px-6 py-3 shrink-0">
-        {/* Row 1: nav + title + view switcher + add button */}
+        {/* Row 1 */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
             {view !== "agenda" && (
               <div className="flex items-center gap-0.5 shrink-0">
                 <button
-                  title="Previous"
                   type="button"
+                  title="Previous"
                   onClick={() => setCurrentDate((d) => navigate(view, d, -1))}
                   className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                 >
@@ -175,8 +269,8 @@ export function ScheduleContent({
                   Today
                 </button>
                 <button
-                  title="Next"
                   type="button"
+                  title="Next"
                   onClick={() => setCurrentDate((d) => navigate(view, d, 1))}
                   className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                 >
@@ -184,7 +278,6 @@ export function ScheduleContent({
                 </button>
               </div>
             )}
-
             <h1 className="font-bold text-gray-900 tracking-tight truncate min-w-0">
               <span className="hidden sm:inline text-[0.9rem] sm:text-[1.05rem]">
                 {getHeaderTitle(view, currentDate)}
@@ -229,14 +322,13 @@ export function ScheduleContent({
           </div>
         </div>
 
-        {/* Row 2: filter pills ← space-between → collapse button */}
+        {/* Row 2: filters + collapse */}
         <div className="flex items-center justify-between gap-2 mt-2.5 sm:mt-3">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-0.5 flex-1 min-w-0">
             <span className="flex items-center gap-1 text-[0.62rem] sm:text-[0.68rem] text-gray-400 font-medium shrink-0">
               <SlidersHorizontal className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               <span className="hidden sm:inline">Filter:</span>
             </span>
-
             <button
               onClick={() => setSelectedCourses([])}
               className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[0.65rem] sm:text-[0.72rem] font-medium transition-all whitespace-nowrap shrink-0 ${
@@ -247,7 +339,6 @@ export function ScheduleContent({
             >
               All
             </button>
-
             {courses.map((course) => (
               <button
                 key={course.id}
@@ -263,12 +354,10 @@ export function ScheduleContent({
             ))}
           </div>
 
-          {/* Collapse button — week/day only */}
           {showCollapseBtn && (
             <button
               onClick={() => setHeaderCollapsed((v) => !v)}
               className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shrink-0 ml-2"
-              title={headerCollapsed ? "Show header" : "Collapse header"}
             >
               <span className="text-[0.6rem] sm:text-[0.65rem] text-gray-500 font-medium hidden sm:inline">
                 {headerCollapsed ? "Expand" : "Collapse"}
@@ -283,7 +372,7 @@ export function ScheduleContent({
         </div>
       </div>
 
-      {/* ── Calendar body ──────────────────────────────────────────── */}
+      {/* ── Calendar body ─────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
         {view === "week" && (
           <WeekView
@@ -320,7 +409,7 @@ export function ScheduleContent({
         )}
       </div>
 
-      {/* ── Add / Edit Modal ───────────────────────────────────────── */}
+      {/* ── Modal ────────────────────────────────────────────────────────────── */}
       <AddEventModal
         isOpen={isModalOpen}
         onClose={closeModal}

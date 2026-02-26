@@ -1,11 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getReminderPreferences } from "@/lib/supabase/reminderActions";
-import {
-  getSchedulePreferences,
-  getAppearancePreferences,
-  getNotificationExtras,
-} from "@/lib/supabase/settingsActions";
 import { SettingsContent } from "@/components/settings/SettingsContent";
 
 export default async function SettingsPage() {
@@ -15,14 +9,8 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [reminderPrefs, schedulePrefs, appearancePrefs, notifExtras] =
-    await Promise.all([
-      getReminderPreferences(),
-      getSchedulePreferences(),
-      getAppearancePreferences(),
-      getNotificationExtras(),
-    ]);
-
+  // Only user identity is passed — SettingsContent fetches all preferences
+  // client-side so switching tabs always shows the latest saved values
   return (
     <SettingsContent
       user={{
@@ -32,10 +20,6 @@ export default async function SettingsPage() {
         last_sign_in_at: user.last_sign_in_at,
         user_metadata: user.user_metadata ?? {},
       }}
-      reminderPrefs={reminderPrefs}
-      schedulePrefs={schedulePrefs}
-      appearancePrefs={appearancePrefs}
-      notifExtras={notifExtras}
     />
   );
 }

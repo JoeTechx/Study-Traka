@@ -24,10 +24,8 @@ import {
   CardBody,
   CardFooter,
   SectionLabel,
-  Toggle,
   ToggleRow,
   SaveButton,
-  Divider,
 } from "@/components/settings/SettingsPrimitives";
 
 interface NotificationsTabProps {
@@ -50,6 +48,39 @@ const HOURS = Array.from({ length: 24 }, (_, i) => {
   const ampm = i < 12 ? "AM" : "PM";
   return { value: String(i), label: `${h}:00 ${ampm}` };
 });
+
+// Simple Toggle component
+function Toggle({
+  checked,
+  onChange,
+  disabled = false,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      title="Toggle"
+      type="button"
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative shrink-0 rounded-full transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed
+        ${checked ? "bg-indigo-500" : "bg-gray-200"}`}
+      style={{ width: "2.25rem", height: "1.25rem" }}
+    >
+      <span
+        className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
+        style={{ transform: checked ? "translateX(1rem)" : "translateX(0)" }}
+      />
+    </button>
+  );
+}
+
+// Simple divider
+function Divider() {
+  return <div className="h-px bg-gray-100" />;
+}
 
 export function NotificationsTab({
   reminderPrefs,
@@ -87,6 +118,25 @@ export function NotificationsTab({
   const [savingExtras, setSavingExtras] = useState(false);
 
   const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // Update state when props change
+  useEffect(() => {
+    if (reminderPrefs) {
+      setEmailEnabled(reminderPrefs.email_enabled);
+      setPushEnabled(reminderPrefs.web_push_enabled);
+      setLeadTime(reminderPrefs.default_minutes_before);
+    }
+  }, [reminderPrefs]);
+
+  useEffect(() => {
+    if (notifExtras) {
+      setDailyDigest(notifExtras.daily_digest);
+      setWeeklySummary(notifExtras.weekly_summary);
+      setQuietHours(notifExtras.quiet_hours);
+      setQuietStart(String(notifExtras.quiet_start));
+      setQuietEnd(String(notifExtras.quiet_end));
+    }
+  }, [notifExtras]);
 
   useEffect(() => {
     if (pushStatus === "granted" && reminderPrefs?.web_push_enabled) {
