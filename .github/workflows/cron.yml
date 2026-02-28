@@ -1,0 +1,22 @@
+name: Scheduled Task
+
+on:
+  schedule:
+    # Runs every minute (adjust as needed)
+    - cron: "*/5 * * * *"
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Call your API endpoint
+        run: |
+          curl -X POST https://your-app.vercel.app/api/your-endpoint \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+            -d '{"task": "scheduled"}'
