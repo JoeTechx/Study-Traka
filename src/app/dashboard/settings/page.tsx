@@ -2,6 +2,21 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SettingsContent } from "@/components/settings/SettingsContent";
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Settings | StudyTraka',
+  description: 'Manage your account settings and preferences.',
+  openGraph: {
+    title: 'Settings | StudyTraka',
+    description: 'Manage your account settings and preferences.',
+  },
+  twitter: {
+    title: 'Settings | StudyTraka',
+    description: 'Manage your account settings and preferences.',
+  },
+}
+
 export default async function SettingsPage() {
   const supabase = await createClient();
   const {

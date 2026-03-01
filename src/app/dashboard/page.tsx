@@ -13,6 +13,25 @@ import {
   type ReminderPreferences,
 } from "@/components/dashboard/RemindersPanel";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard | StudyTraka",
+  description:
+    "View your study dashboard, upcoming classes and exam schedules.",
+  openGraph: {
+    title: "Dashboard | StudyTraka",
+    description:
+      "View your study dashboard, upcoming classes and exam schedules.",
+  },
+  twitter: {
+    title: "Dashboard | StudyTraka",
+    description:
+      "View your study dashboard, upcoming classes and exam schedules.",
+  },
+};
+
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {

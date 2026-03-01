@@ -12,6 +12,27 @@ export default function CoursesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+
+   useEffect(() => {
+    document.title = 'Courses | StudyTraka'
+    
+    // Update meta tags
+    const metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'View your Courses.')
+    }
+    
+    const ogTitle = document.querySelector('meta[property="og:title"]')
+    if (ogTitle) {
+      ogTitle.setAttribute("content", "Courses | StudyTraka");
+    }
+    
+    const ogDescription = document.querySelector('meta[property="og:description"]')
+    if (ogDescription) {
+      ogDescription.setAttribute('content', 'View your Courses.')
+    }
+  }, [])
+
   useEffect(() => {
     loadCourses();
   }, []);

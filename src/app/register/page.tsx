@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Comprehensive validation schema
 const registerSchema = z
@@ -109,6 +109,48 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  
+    useEffect(() => {
+    // Update title
+    document.title = 'Register | StudyTraka'
+    
+    // Update meta description
+    let metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Create a new StudyTraka account to start tracking your studies, classes, and exam schedules.')
+    }
+    
+    // Update Open Graph title
+    let ogTitle = document.querySelector('meta[property="og:title"]')
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'Register | StudyTraka')
+    }
+    
+    // Update Open Graph description
+    let ogDescription = document.querySelector('meta[property="og:description"]')
+    if (ogDescription) {
+      ogDescription.setAttribute('content', 'Create a new StudyTraka account to start tracking your studies, classes, and exam schedules.')
+    }
+    
+    // Update Open Graph URL
+    let ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) {
+      ogUrl.setAttribute('content', 'https://study-traka.vercel.app/register')
+    }
+    
+    // Update Twitter title
+    let twitterTitle = document.querySelector('meta[name="twitter:title"]')
+    if (twitterTitle) {
+      twitterTitle.setAttribute('content', 'Register | StudyTraka')
+    }
+    
+    // Update Twitter description
+    let twitterDescription = document.querySelector('meta[name="twitter:description"]')
+    if (twitterDescription) {
+      twitterDescription.setAttribute('content', 'Create a new StudyTraka account to start tracking your studies, classes, and exam schedules.')
+    }
+    }, [])
+  
   const [showPasswordRequirements, setShowPasswordRequirements] =
     useState(false);
 

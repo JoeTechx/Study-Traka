@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Enhanced login validation schema
 const loginSchema = z.object({
@@ -29,6 +29,47 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
   const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+    // Update title
+    document.title = 'Login | StudyTraka'
+    
+    // Update meta description
+    let metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Login to your StudyTraka account to track your studies and exams.')
+    }
+    
+    // Update Open Graph title
+    let ogTitle = document.querySelector('meta[property="og:title"]')
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'Login | StudyTraka')
+    }
+    
+    // Update Open Graph description
+    let ogDescription = document.querySelector('meta[property="og:description"]')
+    if (ogDescription) {
+      ogDescription.setAttribute('content', 'Login to your StudyTraka account to track your studies and exams.')
+    }
+    
+    // Update Open Graph URL
+    let ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) {
+      ogUrl.setAttribute('content', 'https://study-traka.vercel.app/login')
+    }
+    
+    // Update Twitter title
+    let twitterTitle = document.querySelector('meta[name="twitter:title"]')
+    if (twitterTitle) {
+      twitterTitle.setAttribute('content', 'Login | StudyTraka')
+    }
+    
+    // Update Twitter description
+    let twitterDescription = document.querySelector('meta[name="twitter:description"]')
+    if (twitterDescription) {
+      twitterDescription.setAttribute('content', 'Login to your StudyTraka account to track your studies and exams.')
+    }
+  }, [])
 
   const {
     register,
